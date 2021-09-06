@@ -9,13 +9,38 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 
 </head>
 
 
 <div class="container-fluid mt-3" id="app">
-    <input type="text" class="form-control" v-model="criterioDeBusqueda"
-        placeholder="Ingresar un criterio de busqueda...">
+    <table>
+        <tr>
+        <th class="bi-funnel col-sm-4"> Búsqueda según criterio ingresado:</th>
+        <th class="bi-funnel col-sm-4"> DNI:</th>
+        <th class="bi-funnel col-sm-4"> Nombre o apellido:</th>
+    </tr>
+        <tr>
+        <td class="col-sm-4">
+            <input type="text" class="form-control my-3 alert alert-secondary" v-model="criterioDeBusqueda" @input='validarInput'
+                placeholder="Ingrese un criterio de búsqueda...">
+            <small id="invalido2" style="color: red;">Debe escribir más de 3 caracteres</small>
+        </td>
+        <td class="col-sm-4">
+            <input type="text" class="form-control my-3 alert alert-secondary" v-model="busquedaPorDni" @input='validarInput'
+                placeholder="Ingrese un DNI...">
+            <small id="invalido1" style="color: red;">Debe escribir más de 3 caracteres</small>
+        </td>
+        <td class="col-sm-4">
+            <input type="text" class="form-control my-3 aalert alert-secondary" v-model="busquedaPorNombre" @input='validarInput'
+                placeholder="Ingrese un nombre o apellido...">
+            <small id="invalido" style="color: red;">Debe escribir más de 3 caracteres</small>
+        </td>
+    </tr>
+    </table>
+
+    <br>
     <br>
     <div class="card-deck m-0">
         <div class="row">
@@ -40,6 +65,8 @@
         el: '#app',
         data: {
             criterioDeBusqueda: '',
+            busquedaPorDni: '',
+            busquedaPorNombre: '',
             //Aquí, en este array es donde tienen que agregar su información
             personas: [
                 {
@@ -173,14 +200,45 @@
         computed: {
             personasFiltradas() {
                 return this.personas.filter((persona) => {
-                    let registroCompleto = `${persona.nombre} ${persona.apellido} ${persona.dni} ${persona.correo}`
-                    return registroCompleto.toLowerCase().includes(this.criterioDeBusqueda.toLowerCase())
+                    let registro = ''
+                    if (this.criterioDeBusqueda) {
+                        registro = `${persona.nombre} ${persona.apellido} ${persona.dni} ${persona.correo}`
+                        return registro.toLowerCase().includes(this.criterioDeBusqueda.toLowerCase())
+                    } else if(this.busquedaPorNombre && this.busquedaPorDni){
+                        registro = `${persona.nombre} ${persona.apellido} ${persona.dni}`
+                        return registro.toLowerCase().includes(this.busquedaPorNombre.toLowerCase()) && registro.toLowerCase().includes(this.busquedaPorDni.toLowerCase())
+                    } 
+                    else if (this.busquedaPorNombre) {
+                        registro = `${persona.nombre} ${persona.apellido}`
+                        return registro.toLowerCase().includes(this.busquedaPorNombre.toLowerCase())
+                    } else {
+                        registro = `${persona.dni}`
+                        return registro.toLowerCase().includes(this.busquedaPorDni.toLowerCase())
+                    }
+
                 });
-            }
+            },
         },
         methods: {
             getNombreCompleto(persona) {
                 return `${persona.nombre} ${persona.apellido}`
+            },
+            validarInput() {
+                if (this.busquedaPorNombre.length < 3 && this.busquedaPorNombre.length > 0) {
+                    document.getElementById("invalido").style.display = 'block';
+                } else {
+                    document.getElementById('invalido').style.display = 'none'
+                }
+                if (this.busquedaPorDni.length < 3) {
+                    document.getElementById("invalido1").style.display = 'block';
+                } else {
+                    document.getElementById('invalido1').style.display = 'none'
+                }
+                if (this.criterioDeBusqueda.length < 3) {
+                    document.getElementById("invalido2").style.display = 'block';
+                } else {
+                    document.getElementById('invalido2').style.display = 'none'
+                }
             }
         }
     });
